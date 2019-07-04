@@ -8,6 +8,7 @@ import com.dutchjelly.craftenhance.CraftEnhance;
 import com.dutchjelly.craftenhance.util.RecipeUtil;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 
@@ -19,7 +20,7 @@ public class RecipeLoader {
 	
 	private CraftEnhance main;
 	private Iterator<org.bukkit.inventory.Recipe> iterator;
-
+    private List<ItemStack> disabled = new ArrayList<>();
 	
 	public RecipeLoader(CraftEnhance main){
 		this.main = main;
@@ -33,6 +34,7 @@ public class RecipeLoader {
 		List<CraftRecipe> queue = new ArrayList<CraftRecipe>();
 		org.bukkit.inventory.Recipe similar;
 		main.getServer().resetRecipes();
+		unloadDisabled();
 		for(CraftRecipe r : main.getFileManager().getRecipes()){
 			resetIterator();
 			similar = getNextSimilar(r);
@@ -43,13 +45,43 @@ public class RecipeLoader {
 		}
 		addAll(queue);
 	}
-	
+
+	public void disable(ItemStack result){
+	    if(!disabled.contains(result))
+	        disabled.add(result);
+	    loadRecipes();
+    }
+
+    public List<ItemStack> getDisabled(){
+	    return disabled;
+    }
+
+	public List<ItemStack> getServerRecipes(){
+	    List<ItemStack> results = new ArrayList<>();
+        main.getServer().resetRecipes();
+        resetIterator();
+        Recipe recipe;
+        while(iterator.hasNext()){
+            recipe = iterator.next();
+            results.add(recipe.getResult());
+        }
+        return results;
+    }
+
+    private void unloadDisabled(){
+	    resetIterator();
+        while(iterator.hasNext()){
+            if(disabled.contains(iterator.next().getResult())){
+                iterator.remove();
+            }
+        }
+    }
+
 	private boolean needsLoading(CraftRecipe r, org.bukkit.inventory.Recipe similar){
 		if(similar == null) return true;
 		return !areEqualTypes(similar.getResult(), r.getResult());
 	}
-	
-	//Er gaat iets mis als er geen similar recipes zijn.
+
 	private void handleDefaults(CraftRecipe r, org.bukkit.inventory.Recipe similar){
 		if(similar == null)
 			r.setDefaultResult(new ItemStack(Material.AIR));
@@ -99,16 +131,7 @@ public class RecipeLoader {
 		}
 		return true;
 	}
-	
-	
-	@SuppressWarnings("unused")
-	private void printContent(ItemStack[] content){
-		
-		for(int i = 0; i < content.length; i++){
-			if(content[i] == null) System.out.println(i + ": null");
-			else System.out.println(i + ": " + content[i].getType());
-		}
-	}
+
 	
 	private ItemStack[] getShapedRecipeContent(ShapedRecipe r){
 		ItemStack[] content = new ItemStack[9];

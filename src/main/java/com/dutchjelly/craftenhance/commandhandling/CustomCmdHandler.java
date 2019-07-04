@@ -181,12 +181,14 @@ public class CustomCmdHandler implements TabCompleter{
 	
 	//Returns if the sender has permission for command class with annotation.
 	private boolean hasPermission(CommandSender sender, CustomCmd annotation){
-		return annotation.perms().equals("") || annotation.perms() == null || sender.hasPermission(main.getConfig().getString(annotation.perms()));
+		return annotation.perms().equals("")
+				|| annotation.perms() == null
+				|| sender.hasPermission(main.getConfig().getString(annotation.perms()));
 	}
 	
 	//Find all possible tab completions for args.
 	private List<String> getTabCompleteMatches(String[] args){
-		List<String> completions = new ArrayList<String>();
+		List<String> completions = new ArrayList<>();
 		String completion;
 		for(CmdInterface cmdClass : commandClasses.keySet()){
 			CustomCmd annotation = commandClasses.get(cmdClass);

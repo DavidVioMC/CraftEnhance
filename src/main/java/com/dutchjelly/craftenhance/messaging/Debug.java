@@ -5,7 +5,7 @@ import com.dutchjelly.craftenhance.CraftEnhance;
 import java.util.logging.Logger;
 
 public class Debug {
-	
+
 	public static void init(CraftEnhance main){
 		enable = main.getConfig().getBoolean("enable-debug");
 		prefix = main.getConfig().getString("debug-prefix");
@@ -25,7 +25,7 @@ public class Debug {
 	public static void Send(Object sender, Object obj){
 		if(!enable) return;
 		
-		logger.info(prefix + "<" + sender.getClass().getName() + "> " + obj != null ? obj.toString() : "null");
+		logger.info(prefix + "<" + sender.getClass().getName() + "> " + (obj != null ? obj.toString() : "null"));
 	}
 	
 	public static void Send(Object[] arr){

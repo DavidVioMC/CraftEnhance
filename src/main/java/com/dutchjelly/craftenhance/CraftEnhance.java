@@ -2,20 +2,16 @@ package com.dutchjelly.craftenhance;
 
 import java.util.Arrays;
 
+import com.dutchjelly.craftenhance.commands.*;
 import com.dutchjelly.craftenhance.updatechecking.VersionChecker;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.dutchjelly.craftenhance.commandhandling.CustomCmdHandler;
-import com.dutchjelly.craftenhance.commands.ChangeKeyCmd;
-import com.dutchjelly.craftenhance.commands.CleanItemFileCmd;
-import com.dutchjelly.craftenhance.commands.CreateRecipeCmd;
-import com.dutchjelly.craftenhance.commands.OrderRecipesCmd;
-import com.dutchjelly.craftenhance.commands.RecipesCmd;
-import com.dutchjelly.craftenhance.commands.SetPermissionCmd;
-import com.dutchjelly.craftenhance.commands.SpecsCommand;
 import com.dutchjelly.craftenhance.crafthandling.RecipeInjector;
 import com.dutchjelly.craftenhance.crafthandling.RecipeLoader;
 import com.dutchjelly.craftenhance.data.ConfigFormatter;
@@ -60,6 +56,7 @@ public class CraftEnhance extends JavaPlugin{
 		GUIButtons.init();
 		ConfigFormatter.init(this).formatConfigMessages();
 		createInstances();
+
 		loader.loadRecipes();
 		setupListeners();
 		setupCommands();
@@ -67,6 +64,7 @@ public class CraftEnhance extends JavaPlugin{
 		getMessenger().message("CraftEnhance is managed and developed by DutchJelly.");
 		getMessenger().message("If you find a bug in the plugin, please report it to https://dev.bukkit.org/projects/craftenhance.");
 		VersionChecker.init(this).runVersionCheck();
+        loader.disable(new ItemStack(Material.DIAMOND_SWORD));
 	}
 	
 	@Override
@@ -103,7 +101,7 @@ public class CraftEnhance extends JavaPlugin{
 		//All command with the base /ceh
 		commandHandler.loadCommandClasses(Arrays.asList(new CreateRecipeCmd(commandHandler), new OrderRecipesCmd(commandHandler),
 				new RecipesCmd(commandHandler), new SpecsCommand(commandHandler), new ChangeKeyCmd(commandHandler), 
-				new CleanItemFileCmd(commandHandler), new SetPermissionCmd(commandHandler)));
+				new CleanItemFileCmd(commandHandler), new SetPermissionCmd(commandHandler), new DisableRecipes(commandHandler)));
 		
 	}
 	

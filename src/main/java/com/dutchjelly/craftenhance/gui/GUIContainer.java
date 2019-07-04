@@ -51,6 +51,11 @@ public class GUIContainer {
 		OrderEditor editor = new OrderEditor(this);
 		openGUIElement(editor, player);
 	}
+
+	public void openRecipeDisabler(Player player){
+		RecipeDisabler disabler = new RecipeDisabler(this);
+		openGUIElement(disabler, player);
+	}
 	
 	public void openRecipeCreator(String key, String perm, Player player){
 		RecipeEditor editor = new RecipeEditor(this, key, perm);
