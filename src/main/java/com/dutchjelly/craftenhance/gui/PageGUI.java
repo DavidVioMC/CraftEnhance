@@ -20,7 +20,7 @@ public class PageGUI {
 
     public PageGUI(int GUIsize, String name){
         this.GUIsize = GUIsize;
-        this.name = name;
+        this.name = name;¼
         addPage();
     }
 
