@@ -7,13 +7,16 @@ import java.util.stream.Collectors;
 
 import com.dutchjelly.craftenhance.CraftEnhance;
 import com.dutchjelly.craftenhance.Util.RecipeUtil;
+import com.dutchjelly.craftenhance.model.CFurnaceRecipe;
+import com.dutchjelly.craftenhance.model.CustomRecipe;
+import com.dutchjelly.craftenhance.model.RecipeType;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.inventory.*;
 
 import com.dutchjelly.craftenhance.messaging.Debug;
 import com.dutchjelly.craftenhance.model.CraftRecipe;
+
+import static com.dutchjelly.craftenhance.model.RecipeType.FURNACE;
 
 public class RecipeLoader {
 	
@@ -21,11 +24,136 @@ public class RecipeLoader {
 	private CraftEnhance main;
 	private Iterator<org.bukkit.inventory.Recipe> iterator;
 
+	List<FurnaceRecipe> furnaceRecipes = new ArrayList<>();
+	List<ShapedRecipe> shapedRecipes = new ArrayList<>();
+	List<ShapelessRecipe> shapelessRecipes = new ArrayList<>();
+
 	
 	public RecipeLoader(CraftEnhance main){
 		this.main = main;
 	}
-	
+
+	public void mapExistingRecipes(){
+	    main.getServer().resetRecipes(); //maybe redundant, but why not
+	    Iterator<Recipe> iterator = main.getServer().recipeIterator();
+	    while(iterator.hasNext()){
+	        Recipe r = iterator.next();
+	        if(r instanceof FurnaceRecipe)
+	            furnaceRecipes.add((FurnaceRecipe)r);
+	        else if(r instanceof ShapedRecipe)
+	            shapedRecipes.add((ShapedRecipe)r);
+	        else if(r instanceof ShapelessRecipe)
+	            shapelessRecipes.add((ShapelessRecipe)r);
+        }
+    }
+
+    public void ensureLoaded(CustomRecipe recipe){
+        if(isLoaded(recipe)) return;
+        switch (recipe.getRecipeType()){
+            case CRAFTING_TABLE:
+                loadRecipe((CraftRecipe) recipe);
+                break;
+            case FURNACE:
+                loadRecipe((CFurnaceRecipe) recipe);
+                break;
+        }
+    }
+
+    public void ensureUnloaded(CustomRecipe recipe){
+        if(!isLoaded(recipe)) return;
+        switch (recipe.getRecipeType()){
+            case CRAFTING_TABLE:
+                unloadRecipe((CraftRecipe) recipe);
+                break;
+            case FURNACE:
+                unloadRecipe((CFurnaceRecipe) recipe);
+                break;
+        }
+    }
+
+    private void loadRecipe(CFurnaceRecipe recipe){
+        //add the FurnaceRecipe to the server.
+    }
+
+    public void setDefaultResult(CFurnaceRecipe recipe){
+        ItemStack recipeContent = recipe.getRecipe();
+        if(recipeContent == null) return;
+        FurnaceRecipe matching = furnaceRecipes.stream().
+                filter(x -> x.getInput().getType().equals(recipeContent.getType())).
+                findFirst().orElse(null);
+        if(matching != null)
+            recipe.setDefaultResult(matching.getResult());
+    }
+
+    public void setDefaultResult(CraftRecipe recipe){
+        Recipe matching = shapedRecipes.stream().
+                filter(x -> isSimilarShapedRecipe(x, recipe)).findFirst().orElse(null);
+        if(matching != null){
+            recipe.setDefaultResult(matching.getResult());
+            return;
+        }
+        matching = shapelessRecipes.stream().
+                filter(x -> isSimilarShapeLessRecipe(x, recipe)).findFirst().orElse(null);
+        recipe.setDefaultResult(matching == null ? null : matching.getResult());
+    }
+
+    private void unloadRecipe(CFurnaceRecipe recipe){
+        Iterator<Recipe> iterator = main.getServer().recipeIterator();
+        while(iterator.hasNext()){
+            Recipe irecipe = iterator.next();
+            if(irecipe instanceof FurnaceRecipe){
+                FurnaceRecipe frecipe = (FurnaceRecipe)irecipe;
+                if(frecipe.getInput().equals(recipe.getRecipe())
+                        && frecipe.getResult().equals(recipe.getResult())
+                        && frecipe.getExperience() == recipe.getSmeltXp()){
+                    iterator.remove();
+                    return;
+                }
+            }
+        }
+    }
+
+    private void unloadRecipe(CraftRecipe recipe){
+        Iterator<Recipe> iterator = main.getServer().recipeIterator();
+        while(iterator.hasNext()){
+            Recipe irecipe = iterator.next();
+            if(irecipe instanceof ShapedRecipe){
+                ShapedRecipe srecipe = (ShapedRecipe)irecipe;
+                if(recipe.getResult().equals(srecipe.getResult())
+                        && isSimilarShapedRecipe(srecipe, recipe)){
+                    iterator.remove();
+                    return;
+                }
+            }
+        }
+    }
+
+    private void loadRecipe(CraftRecipe recipe){
+        main.getServer().addRecipe(RecipeUtil.ShapeRecipe(recipe));
+    }
+
+
+
+    private boolean isLoaded(CustomRecipe recipe){
+	    List<Recipe> matchingResults = main.getServer().getRecipesFor(recipe.getResult());
+	    if(recipe instanceof CraftRecipe){
+	        CraftRecipe craftRecipe = (CraftRecipe)recipe;
+            return matchingResults.stream().anyMatch(x ->
+                    (x instanceof ShapedRecipe)
+                    && (isSimilarShapedRecipe(x, craftRecipe)));
+        }
+        if(recipe instanceof CFurnaceRecipe){
+            CFurnaceRecipe cFurnaceRecipe = (CFurnaceRecipe)recipe;
+            return matchingResults.stream().anyMatch(x ->
+                    (x instanceof FurnaceRecipe)
+                    && ((FurnaceRecipe) x).getInput().equals(cFurnaceRecipe.getRecipe())
+                    && ((FurnaceRecipe) x).getExperience() == cFurnaceRecipe.getSmeltXp());
+        }
+        return false;
+    }
+
+
+
 	public void loadRecipes(){
 		if(!main.getConfig().getBoolean("enable-recipes")){
 			Debug.Send("The custom recipes are disabled on the server.");

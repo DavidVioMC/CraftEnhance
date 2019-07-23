@@ -2,10 +2,12 @@ package com.dutchjelly.craftenhance;
 
 import java.util.Arrays;
 
+import com.dutchjelly.craftenhance.model.CustomRecipe;
 import com.dutchjelly.craftenhance.updatechecking.VersionChecker;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.dutchjelly.craftenhance.commandhandling.CustomCmdHandler;
@@ -43,10 +45,18 @@ public class CraftEnhance extends JavaPlugin{
 	private RecipeInjector injector;
 	private CustomCmdHandler commandHandler;
 	private Messenger messenger;
+
+	private static CraftEnhance pluginInstance;
+
+	public static CraftEnhance getPlugin(){
+	    return pluginInstance;
+    }
 	
 	@Override
 	public void onEnable(){
-		
+
+        pluginInstance = this;
+
 		//The filemanager needs serialization, so firstly register the classes.
 		registerSerialization();
 
@@ -94,7 +104,7 @@ public class CraftEnhance extends JavaPlugin{
 	
 	//Registers the classes that extend ConfigurationSerializable.
 	private void registerSerialization(){
-		ConfigurationSerialization.registerClass(CraftRecipe.class, "Recipe");
+		ConfigurationSerialization.registerClass(CustomRecipe.class, "Recipe");
 	}
 	
 	//Create basic instances where order doesn't matter.
