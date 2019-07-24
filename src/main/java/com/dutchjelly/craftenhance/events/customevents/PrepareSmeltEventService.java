@@ -30,6 +30,7 @@ public class PrepareSmeltEventService implements Listener{
         }
     }
 
+
     @EventHandler
     public void onDrag(InventoryDragEvent e){
         if(e.getInventory() instanceof FurnaceInventory){

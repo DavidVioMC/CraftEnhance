@@ -5,6 +5,7 @@ import com.dutchjelly.craftenhance.files.FileManager;
 import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 
@@ -99,5 +100,9 @@ public abstract class CustomRecipe implements ConfigurationSerializable {
     public abstract boolean equals(Recipe bukkitRecipe);
 
     public abstract Recipe getServerRecipe();
+
+    public abstract boolean isSimilarContent(Inventory inv);
+
+    public abstract boolean isEqualContent(Inventory inv);
 
 }

@@ -10,12 +10,9 @@ import com.dutchjelly.bukkitadapter.Adapter;
 import com.dutchjelly.craftenhance.CraftEnhance;
 import com.dutchjelly.craftenhance.Util.RecipeUtil;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.*;
 
 import com.dutchjelly.craftenhance.files.FileManager;
-import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
 
 import static com.dutchjelly.craftenhance.Util.RecipeUtil.IsNullArray;
 import static com.dutchjelly.craftenhance.Util.RecipeUtil.IsNullElement;
@@ -30,7 +27,8 @@ public class CraftRecipe extends CustomRecipe{
 	public CraftRecipe(String perm, ItemStack result, ItemStack[] recipe){
 		setPermission(perm);
 		setContent(recipe);
-		formatContentAmount();
+		if(this.recipe != null)
+		    formatContentAmount(this.recipe);
 	}
 
 	public ItemStack[] getContents(){
@@ -39,7 +37,8 @@ public class CraftRecipe extends CustomRecipe{
 
 	public void setContent(ItemStack[] content){
 		recipe = content;
-		formatContentAmount();
+		if(recipe != null)
+		    formatContentAmount(recipe);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -94,6 +93,33 @@ public class CraftRecipe extends CustomRecipe{
     }
 
     @Override
+    public boolean isSimilarContent(Inventory inv) {
+        if(inv instanceof CraftingInventory){
+            ItemStack[] invContent = ((CraftingInventory) inv).getMatrix();
+            ItemStack[] recipeContent = getContents().clone();
+            ensureDefaultSize(invContent);
+            format(invContent);
+            format(recipeContent);
+            formatContentAmount(invContent);
+            return RecipeUtil.AreEqualTypes(invContent, recipeContent);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isEqualContent(Inventory inv) {
+        if(inv instanceof CraftingInventory){
+            ItemStack[] invContent = ((CraftingInventory) inv).getMatrix();
+            ItemStack[] recipeContent = getContents().clone();
+            ensureDefaultSize(invContent);
+            format(invContent);
+            format(recipeContent);
+            return RecipeUtil.AreEqualItems(invContent, recipeContent);
+        }
+        return false;
+    }
+
+    @Override
 	public Map<String, Object> serialize() {
 		FileManager fm = CraftEnhance.getPlugin().getFileManager();
 		Map<String, Object> serialized = new HashMap<>();
@@ -107,8 +133,8 @@ public class CraftRecipe extends CustomRecipe{
 	}
 
 	
-	private void formatContentAmount(){
-		for(ItemStack item : recipe){
+	private void formatContentAmount(ItemStack[] content){
+		for(ItemStack item : content){
 			if(item != null && item.getAmount() != 1)
 				item.setAmount(1);
 		}
@@ -117,17 +143,6 @@ public class CraftRecipe extends CustomRecipe{
 	public String toString(){
         return baseString();
 	}
-
-
-    private boolean isSimilarShapedRecipe(Recipe serverRecipe, CraftRecipe customRecipe){
-        if(!(serverRecipe instanceof ShapedRecipe)) return false;
-        return RecipeUtil.AreEqualTypes(getShapedRecipeContent((ShapedRecipe) serverRecipe), customRecipe.getContents());
-    }
-
-    private boolean isSimilarShapeLessRecipe(Recipe serverRecipe, CraftRecipe customRecipe){
-        if(!(serverRecipe instanceof ShapelessRecipe)) return false;
-        return allMaterialsMatch((ShapelessRecipe) serverRecipe, getContents());
-    }
 
     private boolean allMaterialsMatch(ShapelessRecipe recipe, ItemStack[] content){
         List<ItemStack> choices = new ArrayList<>();

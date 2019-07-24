@@ -1,6 +1,8 @@
 package com.dutchjelly.craftenhance.model;
 
 import com.dutchjelly.craftenhance.CraftEnhance;
+import org.bukkit.inventory.FurnaceInventory;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 
@@ -31,6 +33,19 @@ public class CFurnaceRecipe extends CustomRecipe {
     @Override
     public Recipe getServerRecipe() {
         return null;
+    }
+
+    @Override
+    public boolean isSimilarContent(Inventory inv) {
+        if(inv instanceof FurnaceInventory){
+            FurnaceInventory fInv = (FurnaceInventory)inv;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isEqualContent(Inventory inv) {
+        return false;
     }
 
     private ItemStack recipe;
