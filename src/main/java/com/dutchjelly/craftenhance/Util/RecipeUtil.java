@@ -28,55 +28,20 @@ public class RecipeUtil {
 
     private static List<String> UsedKeys = new ArrayList<>();
 
-    //Formats content so that it's shifted to the left top.
-    public static void Format(ItemStack[] content){
-        if(IsNullArray(content)) return;
-        boolean nullRow = true, nullColumn = true;
-        while(nullRow || nullColumn){
-            for(int i = 0; i < 3; i++){
-                if(!IsNullElement(content[i]))
-                    nullRow = false;
-                if(!IsNullElement(content[i*3]))
-                    nullColumn = false;
-            }
-            if(nullRow) ShiftUp(content);
-            if(nullColumn) ShiftLeft(content);
+    public static String MakeNameSpaced(String key){
+        //A key and namespace of the recipe on the server.
+        String recipeKey = "recipe" + key.toLowerCase().replaceAll("[^a-z0-9 ]", "");
+        String uniqueKey = recipeKey;
+        int counter = 2; //Start with 2 because first unique key isn't listed as {recipeKey}1.
+        while(UsedKeys.contains(uniqueKey)){
+            uniqueKey = recipeKey + counter;
+            counter++;
         }
+
+        UsedKeys.add(uniqueKey);
+        return uniqueKey;
     }
 
-    //Ensures that matrix has a default size of 9. Returns the ensured
-    //array.
-    public static ItemStack[] EnsureDefaultSize(ItemStack[] matrix){
-        if(matrix.length == 9) return matrix;
-        ItemStack[] defaultMatrix = new ItemStack[9];
-        for(int i = 0; i < 9; i++){
-            defaultMatrix[i] = null;
-        }
-        defaultMatrix[0] = matrix[0];
-        defaultMatrix[1] = matrix[1];
-        defaultMatrix[3] = matrix[2];
-        defaultMatrix[4] = matrix[3];
-
-        return defaultMatrix;
-    }
-
-    //Shifts content to the left one position.
-    private static void ShiftLeft(ItemStack[] content){
-        for(int i = 1; i < content.length; i++){
-            if(i % 3 != 0){
-                content[i-1] = content[i];
-                content[i] = null;
-            }
-        }
-    }
-
-    //Shifts content to the top one position.
-    private static void ShiftUp(ItemStack[] content){
-        for(int i = 3; i < content.length; i++){
-            content[i-3] = content[i];
-            content[i] = null;
-        }
-    }
 
     //Prints content. Used for local debugging on Windows only!
     public static void PrintContent(ItemStack[] content){
@@ -99,59 +64,6 @@ public class RecipeUtil {
     }
 
 
-    //Shapes the craftRecipe that needs to be done to add it to the server.
-    public static ShapedRecipe ShapeRecipe(CraftRecipe craftRecipe){
-        ItemStack[] content = craftRecipe.getContents().clone();
-        Format(content);
-        //A key and namespace of the recipe on the server.
-        String recipeKey = craftRecipe.getKey().toLowerCase().replaceAll("[^a-z0-9 ]", "");
-        while(UsedKeys.contains(recipeKey)) recipeKey += "A";
-        UsedKeys.add(recipeKey);
-        ShapedRecipe shaped = Adapter.GetShapedRecipe(
-                CraftEnhance.getPlugin(CraftEnhance.class), "ceh" + recipeKey, craftRecipe.getResult()
-        );
-        shaped.shape(GetShape(content));
-        MapIngredients(shaped, content);
-        return shaped;
-    }
-
-    //Gets the shape of the recipe 'content'.
-    private static String[] GetShape(ItemStack[] content){
-        String recipeShape[] = {"","",""};
-        for(int i = 0; i < 9; i++){
-            if(content[i] != null)
-                recipeShape[i/3] += (char)('A' + i);
-            else
-                recipeShape[i/3] += ' ';
-        }
-        return TrimShape(recipeShape);
-    }
-
-    //Trims the shape so that there are no redundant spaces or elements in shape.
-    private static String[] TrimShape(String[] shape){
-        List<String> TrimmedShape = new ArrayList<>();
-        int maxLength = 0;
-        int temp;
-        for(int i = 0; i < shape.length; i++){
-            temp = StringUtils.stripEnd(shape[i], " ").length();
-            if(temp > maxLength)
-                maxLength = temp;
-        }
-        for(int i = 0; i < shape.length; i++){
-            shape[i] = shape[i].substring(0, maxLength);
-            if(shape[i].trim().length() > 0) TrimmedShape.add(shape[i]);
-        }
-        return TrimmedShape.toArray(new String[0]);
-    }
-
-    private static void MapIngredients(ShapedRecipe recipe, ItemStack[] content){
-        for(int i = 0; i < 9; i++){
-            if(content[i] != null){
-                //recipe.setIngredient((char) ('A' + i), content[i].getType());
-                Adapter.SetIngredient(recipe, (char) ('A' + i), content[i]);
-            }
-        }
-    }
 
     //Looks for every index if the item in recipe has an equal type of the item in content.
     public static boolean AreEqualTypes(ItemStack[] recipe, ItemStack[] content){
@@ -208,16 +120,16 @@ public class RecipeUtil {
         return item;
     }
 
-    //Mirrors the content verticly. The length of content has to be 9 and should
-    //represent a 3*3 crafting bench's content.
+    //Mirrors the content vertically. Works with any size matrix.
     public static ItemStack[] MirrorVerticle(ItemStack[] content){
         //012  ->  210
         //345  ->  543
         //678  ->  876
-        if(content == null || content.length != 9) return null;
+        if(content == null) return null;
+        int root = (int)Math.sqrt(content.length);
         ItemStack[] mirrored = new ItemStack[9];
-        for(int i = 0; i < 9; i+=3){
-            for(int j = 0; j < 3; j++){
+        for(int i = 0; i < content.length; i+=root){
+            for(int j = 0; j < root; j++){
                 //Reverses the row for every loop of i.
                 mirrored[i+2 - j] = content[i+j];
             }

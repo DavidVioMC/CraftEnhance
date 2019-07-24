@@ -2,6 +2,7 @@ package com.dutchjelly.craftenhance.model;
 
 import com.dutchjelly.craftenhance.CraftEnhance;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 
 import java.util.Map;
 
@@ -18,11 +19,19 @@ public class CFurnaceRecipe extends CustomRecipe {
     }
 
     @Override
-    public void load() {
-        CraftEnhance.getPlugin().getRecipeLoader().setDefaultResult(this);
-        CraftEnhance.getPlugin().getRecipeLoader().ensureUnloaded(this);
+    public boolean isSimilar(Recipe bukkitRecipe) {
+        return false;
     }
 
+    @Override
+    public boolean equals(Recipe bukkitRecipe) {
+        return false;
+    }
+
+    @Override
+    public Recipe getServerRecipe() {
+        return null;
+    }
 
     private ItemStack recipe;
     private long smeltDuration;

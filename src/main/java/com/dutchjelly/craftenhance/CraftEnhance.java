@@ -2,12 +2,12 @@ package com.dutchjelly.craftenhance;
 
 import java.util.Arrays;
 
+import com.dutchjelly.craftenhance.events.EventClass;
 import com.dutchjelly.craftenhance.model.CustomRecipe;
 import com.dutchjelly.craftenhance.updatechecking.VersionChecker;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.dutchjelly.craftenhance.commandhandling.CustomCmdHandler;
@@ -26,7 +26,6 @@ import com.dutchjelly.craftenhance.gui.GUIContainer;
 import com.dutchjelly.craftenhance.messaging.Debug;
 import com.dutchjelly.craftenhance.messaging.Messenger;
 import com.dutchjelly.craftenhance.Util.GUIButtons;
-import com.dutchjelly.craftenhance.model.CraftRecipe;
 import com.dutchjelly.craftenhance.commands.edititem.DisplayNameCmd;
 import com.dutchjelly.craftenhance.commands.edititem.DurabilityCmd;
 import com.dutchjelly.craftenhance.commands.edititem.EnchantCmd;
@@ -155,6 +154,8 @@ public class CraftEnhance extends JavaPlugin{
 	public Messenger getMessenger(){
 		return messenger;
 	}
-	
+
+
+
 	
 }

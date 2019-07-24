@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -91,10 +92,12 @@ public abstract class CustomRecipe implements ConfigurationSerializable {
         return "Recipe of " + (result != null ? result.getType().name() : "null") + " with key " + (key != null ? key : "null");
     }
 
-    public void unload(){
-        CraftEnhance.getPlugin().getRecipeLoader().ensureUnloaded(this);
-    }
+    //If the bukkitRecipe gives the same result as this recipe, it's similar.
+    public abstract boolean isSimilar(Recipe bukkitRecipe);
 
-    public abstract void load();
+    //If the recipe is similar and if the other properties match, it's equal.
+    public abstract boolean equals(Recipe bukkitRecipe);
+
+    public abstract Recipe getServerRecipe();
 
 }

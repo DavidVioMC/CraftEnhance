@@ -1,5 +1,6 @@
-package com.dutchjelly.craftenhance;
+package com.dutchjelly.craftenhance.events;
 
+import com.dutchjelly.craftenhance.CraftEnhance;
 import com.dutchjelly.craftenhance.messaging.Debug;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
