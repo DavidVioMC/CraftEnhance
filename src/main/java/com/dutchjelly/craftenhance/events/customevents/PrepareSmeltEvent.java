@@ -5,6 +5,9 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 public class PrepareSmeltEvent extends Event implements Cancellable {
+
+    private static final HandlerList handlers = new HandlerList();
+
     @Override
     public boolean isCancelled() {
         return false;
@@ -17,6 +20,10 @@ public class PrepareSmeltEvent extends Event implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return null;
+        return handlers;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 }
