@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import com.dutchjelly.craftenhance.messaging.Debug;
 import com.dutchjelly.craftenhance.Util.RecipeUtil;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.CraftingInventory;
@@ -33,7 +34,6 @@ public class RecipeInjector {
 			Debug.Send("Stopping injecting because empty recipes. Config Error..");
 			return;
 		}
-
 
 		ItemStack[] invContent = RecipeUtil.EnsureDefaultSize(inv.getMatrix()).clone();
 		RecipeUtil.Format(invContent);
@@ -91,9 +91,6 @@ public class RecipeInjector {
 		}
 		return true;
 	}
-	
-
-
 	
 	
 }
